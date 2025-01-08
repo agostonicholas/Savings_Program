@@ -18,7 +18,8 @@ def save_bills(bills, filename="bills.json"):  # finished
         json.dump(bills, file, indent=4)
 
 
-def track_bills():  # FIX_ME: Add a total of bills feature, central tendencies, Bill loading is broken
+def list_bills():
+
     bills = load_bills()
 
     # load the bills and print them # Adds total
@@ -50,6 +51,28 @@ def track_bills():  # FIX_ME: Add a total of bills feature, central tendencies, 
     print("Bills Updated!")
 
     total = sum(bills.values())
+
+
+def track_bills(bills_option):
+
+    print("1: List bills and their total")
+    print("2: Add a new bill")
+    print("3: Edit an existing bill")
+    print("4: Remove an existing bill")
+    print("5: Return to Main Menu")
+
+    bills_menu = {
+        1: list_bills(),
+        2: add_bill(),
+        3: edit_bill(),
+        4: remove_bill(),
+        5: menu_options,
+    }
+
+    if bills_option in bills_menu:
+        bills_menu[bills_option]()
+    else:
+        print("Choose a number 1-5.")
 
 
 def track_savings():
