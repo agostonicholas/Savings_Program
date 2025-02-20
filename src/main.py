@@ -114,10 +114,11 @@ def list_bills():  # Finished Working 2/3/2025
 
 def track_bills():  # Working 2/3/2025 Finished for now
     while True:
-
+        print("* * * * * * * * * * * * * * *")
         print("1: List bills and their total")
         print("2: Edit/Remove an existing bill")
         print("3: Return to Main Menu")
+        print("* * * * * * * * * * * * * * *")
         try:
             bills_option = int(input("Enter a number 1-3:"))
 
@@ -139,10 +140,12 @@ def track_bills():  # Working 2/3/2025 Finished for now
 # Income  #
 # # # # # # # # # # # # # # # # # # # # # # # # # # #
 def track_income():
+    print("* * * * * * * * * * *")
     print('1: Total Income')
     print('2: Income Breakdown')
     print('3: Income Minus Bills')
     print('4: Main Menu')
+    print("* * * * * * * * * * *")
 
     income_options = {
         1: total_income,
@@ -161,6 +164,8 @@ def track_income():
 
 
 def list_income():
+    # Lists the income
+    # use across the program
     income = load_data("income.json") or {}
     print('* * * Sources of Income * * *')
     for name, amount in income.items():
@@ -168,10 +173,10 @@ def list_income():
 
 
 def total_income():
-    income = load_data("income.json") or {}
+    income = load_data("income.json") or {}  # ensures there is an income dictionary
     print('* * * Income * * *')
     while True:
-        if not income:
+        if not income:  # handles case where there is no income
             print('No income :(')
             monthly_amount = float(input('Add your monthly income.'))
             income["Monthly Income"] = monthly_amount
@@ -181,36 +186,77 @@ def total_income():
             list_income()
         list_income()
 
-        choice = input('Edit your income sources?').lower().strip()
+        choice = input('Edit your income sources?(yes/no)').strip().lower()  # take input for income
 
-        if choice == 'yes' or "y":
+        if choice in ('yes', 'y'):  # enter new income
             print('Weekly or monthly?')
             income_type = input().lower().strip()
             if income_type == 'weekly':
                 new_amount = float(input('Enter the new weekly income amount:'))
                 income["Weekly Income"] = new_amount
-                save_data(income, "income.json")
-            if income_type == 'monthly':
+                list_income()
+                save_data(income, "income.json")  # save
+            elif income_type == 'monthly':
                 new_amount = float(input('Enter the new monthly income amount:'))
                 income["Monthly Income"] = new_amount
-                save_data(income, "income.json")
+                list_income()
+                save_data(income, "income.json")  # save
             else:
                 print('Please enter weekly or monthly.')
 
-        list_income()
-
-        if choice == 'no' or "n":
+        if choice in ('no', 'n'):  # if no restarts from sub menu
             track_income()
         else:
             print('Please choose yes or no.')
 
 
 def income_breakdown():
-    pass
+    # 50% expenses 30% spending 20% savings #
+    income = load_data("income.json")  # load data
+
+    expenses = income["Monthly Income"] * .5  # 50% of monthly income
+    spending = income["Monthly Income"] * .3  # 30% of monthly income
+    savings = income["Monthly Income"] * .2  # 20% of monthly income
+
+    # print the breakdown
+    print("* * * Breakdown for Monthly Income * * *")
+    print(f"${expenses:.2f} for bills")
+    print(f"${spending:.2f} to spend")
+    print(f"${savings:.2f} to save")
+    print("* * * * * * * * * * * ")
+
+    track_income()  # return to income menu
 
 
 def income_minus_bills():
-    pass
+    bills = load_data("bills.json") or {}  # ensures bills is a dictionary
+    income = load_data("income.json") or {}  # ensures income is a dictionary
+
+    # load bills and total
+    if bills:
+        total = 0
+        for bill_name, bill_amount in bills.items():
+            total += bill_amount
+        income_minus_expenses = income["Monthly Income"] - total
+
+        print("* * * * * * * * *")
+        print(f"Total of all bills: ${total:.2f}")
+        print(f"Income minus listed bills: ${income_minus_expenses}")  # logic for income minus expenses
+        print("* * * * * * * * *")
+
+        # evaluating whether too much money was spent on expenses
+        breakdown = income["Monthly Income"] * .5
+        if breakdown < income_minus_expenses:  # checks if you have an excess of money after bills
+            print(f"${income_minus_expenses - breakdown} extra")  # logic for the breakdown
+            print(f"Excess money!! Recommend splitting it between savings and spending! Great Work! "
+                  "\n(based on expenses being 50% of monthly income)")
+        if breakdown > income_minus_expenses:  # checks if you have a deficit of money after bills
+            print(f"${breakdown - income_minus_expenses} deficit")  # opposite logic for the breakdown
+            print(f"Too much money on expenses this month :( \n(based on expenses being 50% of monthly income)")
+        track_income()
+    else:
+        print("No saved bills.")
+        track_income()
 
 
 # # # # # #
@@ -228,17 +274,17 @@ def track_savings():
         for money, saved in savings.items():
             print(f'${saved} in savings')
 
-        choice = input('Add to savings...').lower().split()
-        if choice == 'yes' or 'y':
+        choice = input('Add to savings...').strip().lower()
+        if choice in ('yes', 'y'):
             amount = float(input('Enter an amount to save.'))
             savings["Total Savings"] += amount
             for money, saved in savings.items():
                 print(f'${saved} in savings')
             save_data(savings, "savings.json")
-        if choice == 'no' or 'n':
-            for money, saved in savings.items():
-                print(f'${saved} in savings')
+        elif choice in ('no', 'n'):
             main()
+        else:
+            print('Invalid option.')
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -251,10 +297,6 @@ def create_goal_year():
     pass
 
 
-def save_and_quit():
-    pass
-
-
 # # menu function. displays menu options and references functions
 def menu_options(choice):
     print("1: Track bills")
@@ -262,6 +304,7 @@ def menu_options(choice):
     print("3: Track income")
     print("4: Create monthly goal")
     print("5: Create year goal")
+    print("6: Quit")
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
